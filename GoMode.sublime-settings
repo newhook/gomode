@@ -1,0 +1,20 @@
+{
+	// env is a map of GOPATH, GOROOT and PATH variables.
+	// e.g "env": { "PATH": "$HOME/go/bin:$PATH" }
+	"env": {
+		"GOPATH": "$HOME/src/services:$HOME/src/services/.gopack/vendor",
+		"PATH": "/usr/local/bin:$HOME/src/services/bin:$PATH"
+	},
+
+	// oracle_scope is an array of scopes of analysis for oracle.
+	// e.g (for github.com/juju/juju) "oracle_scope": ["github.com/juju/juju/cmd/juju", "github.com/juju/juju/cmd/jujud"]
+	"oracle_scope": ["servers/dev"],
+
+	// The format of oracle's output can be one of: 'json', 'xml' or 'plain'
+	"oracle_format": "plain",
+
+	// The output can either be one of: 'buffer', 'output_panel'
+	// Buffers can hold results from more than one invocation
+	// Output panels sit underneath the editor area and are easily dismissed
+	"output": "buffer"
+}

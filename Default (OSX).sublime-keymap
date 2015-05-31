@@ -1,0 +1,7 @@
+[
+    { "keys": ["super+d"], "command": "go_mode_go_def" },
+    { "keys": ["super+b"], "command": "go_mode_back" },
+    { "keys": ["super+."], "command": "go_mode_go_fmt" },
+	{ "keys": ["ctrl+shift+o"], "command": "go_mode_oracle"},
+	{ "keys": ["ctrl+alt+shift+o"], "command": "go_mode_oracle_show_results"}
+]

@@ -1,0 +1,34 @@
+[
+	{
+		"caption": "GoMode: GoDef",
+		"command": "go_mode_go_def"
+	},
+	{
+		"caption": "GoMode: Back",
+		"command": "g_mode_back"
+	},
+	{
+		"caption": "GoMode: Oracle",
+		"command": "go_mode_oracle"
+	},
+	{
+		"caption": "GoMode: GoRename",
+		"command": "go_mode_go_rename"
+	},
+	{
+		"caption": "GoMode: Next Error",
+		"command": "go_mode_next"
+	},
+	{
+		"caption": "GoMode: Previous Error",
+		"command": "go_mode_previous"
+	},
+	{
+		"caption": "GoMode: Restart GoCode",
+		"command": "go_mode_restart_go_code"
+	},
+	{
+		"caption": "GoMode: Install Binaries",
+		"command": "go_mode_install_binaries"
+	}
+]

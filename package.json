@@ -1,0 +1,20 @@
+{
+    "schema_version": "1.1",
+    "packages": [
+        {
+            "name": "go-code",
+            "description": "Go mode",
+            "author": "Matthew Newhook (newhook)",
+            "homepage": "http://github.com/newhook/go-mode",
+            "last_modified": "2015-05-30 9:20",
+            "platforms": {
+                "*": [
+                    {
+                        "version": "0.1",
+                        "url": "https://github.com/newhook/go-mode"
+                    }
+                ]
+            }
+        }
+    ]
+}
