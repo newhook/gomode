@@ -23,6 +23,20 @@ from .common import *
 
 from .thread_progress import *
 
+# Add flymake*.go so we avoid spamming the file view when flymaking.
+def update_file_exclude_patterns():
+    s = sublime.load_settings("Preferences.sublime-settings")
+    file_exclude_patterns = s.get('file_exclude_patterns', [])
+    found = False
+    for f in file_exclude_patterns:
+        if f == "flymake*.go":
+            found = True
+    if not found:
+        file_exclude_patterns.append("flymake*.go")
+        s.set('file_exclude_patterns', file_exclude_patterns)
+        sublime.save_settings("Preferences.sublime-settings")
+update_file_exclude_patterns()
+
 def get_output_view(window):
     view = None
     buff_name = 'Go Mode'
