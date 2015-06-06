@@ -17,7 +17,7 @@ import atexit
 #
 
 from .errormarkers import clear_error_marks, clear_error_marks_view, add_error_mark, show_error_marks, \
-                         update_statusbar, erase_error_marks
+                         update_statusbar, erase_error_marks, has_error_marks
 
 from .common import *
 
@@ -27,6 +27,8 @@ from .thread_progress import *
 def update_file_exclude_patterns():
     s = sublime.load_settings("Preferences.sublime-settings")
     file_exclude_patterns = s.get('file_exclude_patterns', [])
+    if file_exclude_patterns is None:
+        return
     found = False
     for f in file_exclude_patterns:
         if f == "flymake*.go":
@@ -334,14 +336,14 @@ class GoModeCompiler:
     def show_results(self, view, returncode, stdout, stderr):
         # clear_error_marks()       
         file_name = view.file_name().encode('utf-8')
-
         outputView = get_output_view(view.window())
         outputView.run_command('go_mode_output_insert', {'text': "%s\n%s" % (view.file_name(), stdout.decode("utf-8"))})
 
         # print("show results: view=%s file=%s" % (view, file_name))
         # print("stdout\n%s" %(stdout.decode("utf-8")))
         clear_error_marks_view(file_name)
-        lines = stdout.decode("utf-8").split('\n')
+        print(stdout.decode("utf-8"))
+        lines = stdout.decode("utf-8").split('\n') 
         for l in lines:
             # XXX: Compile.
             #
@@ -351,8 +353,12 @@ class GoModeCompiler:
             if m is None:
                 continue
             f = m.group(1)
-            # Is it possible for f not to be flymake_ view.file_name()
-            add_error_mark(file_name, int(m.group(2))-1, m.group(3))
+            base = os.path.basename(f)
+            if len(base) > len("flymake_") and base[:len("flymake_")] == "flymake_":
+                base = base[len("flymake_"):]
+            # All files must be in the same directory as the view.file_name()
+            f = os.path.join(os.path.dirname(view.file_name()), base)
+            add_error_mark(f.encode('utf-8'), int(m.group(2))-1, m.group(3))
         show_error_marks(view)
 
     # Run in worker thread.
@@ -418,7 +424,10 @@ class GoModeGoFlymake(sublime_plugin.EventListener):
         self.recompile_delay = 1.0
 
     def restart_recompile_timer(self, timeout):
-        if self.recompile_timer != None:
+        # Do a recompile now, but not another for 5s.
+        if self.recompile_timer == None:
+            self.recompile()
+        elif self.recompile_timer != None:
             self.recompile_timer.cancel()
         self.recompile_timer = threading.Timer(timeout, sublime.set_timeout,
                                                [self.recompile, 0])
@@ -442,4 +451,17 @@ class GoModeGoFlymake(sublime_plugin.EventListener):
             return
 
         self.views[view.file_name()] = view
-        self.restart_recompile_timer(self.recompile_delay)  
+        self.restart_recompile_timer(self.recompile_delay)
+
+    def show_errors(self, view):
+        if not is_go_source_view(view):
+            return
+
+        if has_error_marks(view):
+            show_error_marks(view)
+
+    def on_activated(self, view):
+        self.show_errors(view)
+
+    def on_load(self, view):
+        self.show_errors(view)

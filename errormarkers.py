@@ -51,11 +51,19 @@ def clear_error_marks():
     listdict = lambda: defaultdict(list)
     ERRORS = defaultdict(listdict)
 
+def has_error_marks(view):
+    fn = sencode(view.file_name())
+    return fn in ERRORS
+
 def clear_error_marks_view(filename):
     global ERRORS
     ERRORS[filename] = defaultdict(list)
 
 def add_error_mark(filename, line, message):
+    global ERRORS
+    if not filename in ERRORS:
+        ERRORS[filename] = defaultdict(list)
+    print(filename)
     ERRORS[filename][line].append(message)
 
 def show_error_marks(view):
