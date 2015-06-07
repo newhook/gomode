@@ -1,6 +1,9 @@
 GoMode
 =======
 
+NOTE: I haven't released the package to package control yet. I'm still testing the plugin and using it daily for
+my own code. It seems to be very stable, but I'm still discovering and fixing issues.
+
 Intro
 -----
 
