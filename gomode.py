@@ -296,7 +296,7 @@ class GoModeAutocomplete(sublime_plugin.EventListener):
         try:
             pos = locations[0]
             env = getenv()
-            p = subprocess.Popen(["gocode", "-sock=tcp", "-addr=localhost:37777", "-f=json", "autocomplete", str(pos)], env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            p = subprocess.Popen(["gocode", "-sock=tcp", "-addr=localhost:37777", "-f=json", "autocomplete", view.file_name().encode('utf-8'), str(pos)], env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             src = view.substr(sublime.Region(0, view.size()))
             stdout, stderr = p.communicate(input=src.encode())
             if p.returncode != 0:
