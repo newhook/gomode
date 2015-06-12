@@ -113,6 +113,7 @@ class GoStatusbarUpdater(sublime_plugin.EventListener):
         if view.is_scratch():
             return
 
+
         # We only display errors in the status bar for the last line in the current selection.
         # If that line number has not changed, there is no point in updating the status bar.
         lastSelectedLineNo = last_selected_lineno(view)

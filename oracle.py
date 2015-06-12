@@ -21,7 +21,7 @@ class GoModeOracleCommand(sublime_plugin.TextCommand):
         cb_map = self.get_map(text)
         byte_end = cb_map[sorted(cb_map.keys())[-1]]
         byte_begin = None
-        if not region.empty(): 
+        if not region.empty():
             byte_begin = cb_map[region.begin()-1]
 
         if mode:
@@ -116,16 +116,16 @@ class GoModeOracleCommand(sublime_plugin.TextCommand):
         "output_format": get_setting("oracle_format"),
         "mode": mode,
         # TODO if scpoe is not set, use main.go under pwd or sublime project path.
-        "scope": ' '.join(get_setting("oracle_scope"))} 
+        "scope": ' '.join(get_setting("oracle_scope"))}
 
         if "GOROOT" in env:
-            gRoot = "export GOROOT=\"%s\"; " % env["GOROOT"] 
+            gRoot = "export GOROOT=\"%s\"; " % env["GOROOT"]
             cmd = gRoot + cmd
 
         sublime.set_timeout_async(lambda: self.runInThread(cmd, callback), 0)
 
     def runInThread(self, cmd, callback):
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
+        proc = openProcess(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
         out, err = proc.communicate()
         callback(out.decode('utf-8'), err.decode('utf-8'))
 
@@ -145,7 +145,7 @@ class GoModeOracleWriteResultsCommand(sublime_plugin.TextCommand):
             view.insert(edit, view.size(), err)
 
         view.insert(edit, view.size(), "\n\n\n")
-        
+
 
 class GoModeOracleWriteRunningCommand(sublime_plugin.TextCommand):
     """ Writes the oracle output to the current view.
@@ -171,6 +171,7 @@ class GoModeOracleShowResultsCommand(sublime_plugin.TextCommand):
 
 class GoModeOracleOpenResultCommand(sublime_plugin.EventListener):
     def on_selection_modified(self, view):
+
       if view.name() == "Oracle Output":
         if len(view.sel()) != 1:
             return
@@ -196,7 +197,7 @@ class GoModeOracleOpenResultCommand(sublime_plugin.EventListener):
         # filename:line.col-line.col: pattern for plain
         if m == None:
             m = re.search("^([^:]+):([0-9]+).([0-9]+)[-: ]", text)
-        
+
         if m:
             w = view.window()
             new_view = w.open_file(m.group(1) + ':' + m.group(2) + ':' + m.group(3), sublime.ENCODED_POSITION)

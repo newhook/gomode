@@ -109,7 +109,7 @@ def install_packages(view):
         view.run_command('go_mode_output_insert', {'text': "\n"})
         try:
             env = getenv()
-            child = subprocess.Popen(args, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            child = openProcess(args, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout, stderr = child.communicate()
             if child.returncode != 0:
                 err = stderr.decode('utf-8')
@@ -136,7 +136,7 @@ class GoModeGoFmtCommand(sublime_plugin.TextCommand):
 
         try:
             env = getenv()
-            child = subprocess.Popen(["goimports"], env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            child = openProcess(["goimports"], env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout, stderr = child.communicate(input=content.encode('utf-8'))
             if child.returncode != 0:
                 err = stderr.decode('utf-8')
@@ -168,7 +168,7 @@ class GoModeGoRenameCommand(sublime_plugin.WindowCommand):
 
         current_selection = view.substr(region)
         # TODO: should we try to detect if the selected region could not be an actual renamable identifier?
-        
+
         def on_done(new_name):
             if new_name == current_selection:
                 return
@@ -176,7 +176,7 @@ class GoModeGoRenameCommand(sublime_plugin.WindowCommand):
                 offset = filename + ':#{0}'.format(region.begin())
                 env = getenv()
                 args = ['gorename', '-offset', offset, '-to', new_name]
-                p = subprocess.Popen(args, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                p = openProcess(args, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 stdout, stderr = p.communicate()
                 if p.returncode != 0:
                     view = get_output_view(self.window)
@@ -225,7 +225,7 @@ class GoModeGoDefCommand(sublime_plugin.WindowCommand):
 
             args = [ "godef", "-f", filename, "-o", str(offset) ]
             env = getenv()
-            p = subprocess.Popen(args, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            p = openProcess(args, env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             stdout, stderr = p.communicate()
             if p.returncode != 0:
                 err = stderr.decode('utf-8')
@@ -256,7 +256,7 @@ class GoModeGoCodeDaemon:
             addr = get_setting("gocode_address", "-addr=localhost:37777")
             debug = get_setting("gocode_debug", "false")
             # XXX: Parameterize gocode addr.
-            self.p = subprocess.Popen(["gocode", "-sock=tcp", addr, "-s=true", "-debug=%s" % (debug)], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            self.p = openProcess(["gocode", "-sock=tcp", addr, "-s=true", "-debug=%s" % (debug)], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             t = threading.Thread(target=log_output, args=(self.p.stdout, outputView))
             t.daemon = True # thread dies with the program
             t.start()
@@ -270,7 +270,7 @@ class GoModeGoCodeDaemon:
     def kill_gocode(self):
         env = getenv()
         addr = get_setting("gocode_address", "-addr=localhost:37777")
-        p = subprocess.Popen(["gocode", "-sock=tcp", addr, "close"], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = openProcess(["gocode", "-sock=tcp", addr, "close"], env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = p.communicate()
         if p.returncode != 0:
             if not self.p is None:
@@ -296,7 +296,7 @@ class GoModeAutocomplete(sublime_plugin.EventListener):
         try:
             pos = locations[0]
             env = getenv()
-            p = subprocess.Popen(["gocode", "-sock=tcp", "-addr=localhost:37777", "-f=json", "autocomplete", view.file_name().encode('utf-8'), str(pos)], env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            p = openProcess(["gocode", "-sock=tcp", "-addr=localhost:37777", "-f=json", "autocomplete", view.file_name().encode('utf-8'), str(pos)], env=env, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             src = view.substr(sublime.Region(0, view.size()))
             stdout, stderr = p.communicate(input=src.encode())
             if p.returncode != 0:
@@ -334,7 +334,7 @@ class GoModeCompiler:
 
     # Run in main thread.
     def show_results(self, view, returncode, stdout, stderr):
-        # clear_error_marks()       
+        # clear_error_marks()
         file_name = view.file_name().encode('utf-8')
         outputView = get_output_view(view.window())
         outputView.run_command('go_mode_output_insert', {'text': "%s\n%s" % (view.file_name(), stdout.decode("utf-8"))})
@@ -343,7 +343,7 @@ class GoModeCompiler:
         # print("stdout\n%s" %(stdout.decode("utf-8")))
         clear_error_marks_view(file_name)
         print(stdout.decode("utf-8"))
-        lines = stdout.decode("utf-8").split('\n') 
+        lines = stdout.decode("utf-8").split('\n')
         for l in lines:
             # XXX: Compile.
             #
@@ -380,7 +380,7 @@ class GoModeCompiler:
 
                 args = ["goflymake", flyname]
                 env = getenv()
-                p = subprocess.Popen(args, cwd=dirname, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+                p = openProcess(args, cwd=dirname, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
                 stdout, stderr = p.communicate()
                 os.unlink(target_name)
 
@@ -427,7 +427,7 @@ class GoModeGoFlymake(sublime_plugin.EventListener):
         # Do a recompile now, but not another for 5s.
         if self.recompile_timer == None:
             self.recompile()
-        elif self.recompile_timer != None:
+        else:
             self.recompile_timer.cancel()
         self.recompile_timer = threading.Timer(timeout, sublime.set_timeout,
                                                [self.recompile, 0])
@@ -460,8 +460,8 @@ class GoModeGoFlymake(sublime_plugin.EventListener):
         if has_error_marks(view):
             show_error_marks(view)
 
-    def on_activated(self, view):
-        self.show_errors(view)
+    #def on_activated(self, view):
+        #self.show_errors(view)
 
-    def on_load(self, view):
-        self.show_errors(view)
+    #def on_load(self, view):
+        #self.show_errors(view)
