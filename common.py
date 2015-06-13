@@ -23,11 +23,11 @@ def getenv():
         env[k] = os.path.expandvars(userenv[k])
     return env
 
-def openProcess(args,env=None,cwd=None,stdin=None,stdout=None,stderr=None):
+def openProcess(args,env=None,cwd=None,stdin=None,stdout=None,stderr=None, shell=False):
     startupinfo = None
 
     if os.name == 'nt':
         startupinfo = subprocess.STARTUPINFO()
         startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-    proc = subprocess.Popen(args,bufsize=-1,env=env,cwd=cwd,stdin=stdin,stdout=stdout,stderr=stderr,startupinfo=startupinfo)
+    proc = subprocess.Popen(args,bufsize=-1,env=env,cwd=cwd,stdin=stdin,stdout=stdout,stderr=stderr,startupinfo=startupinfo, shell=shell)
     return proc

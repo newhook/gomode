@@ -125,8 +125,10 @@ class GoModeOracleCommand(sublime_plugin.TextCommand):
         sublime.set_timeout_async(lambda: self.runInThread(cmd, callback), 0)
 
     def runInThread(self, cmd, callback):
+        start = time.time()
         proc = openProcess(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE, shell=True)
         out, err = proc.communicate()
+        print("oracle command ran in %.2fs" % (time.time() - start))
         callback(out.decode('utf-8'), err.decode('utf-8'))
 
 
